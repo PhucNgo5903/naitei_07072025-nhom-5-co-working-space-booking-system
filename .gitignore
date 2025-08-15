@@ -69,3 +69,6 @@ yarn-debug.log*
 src/main/resources/application.properties
 
 .idea
+
+**/target/
+

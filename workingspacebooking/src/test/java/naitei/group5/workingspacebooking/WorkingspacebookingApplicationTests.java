@@ -1,4 +1,4 @@
-package sun.naitei.group5.workingspacebooking;
+package naitei.group5.workingspacebooking;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
