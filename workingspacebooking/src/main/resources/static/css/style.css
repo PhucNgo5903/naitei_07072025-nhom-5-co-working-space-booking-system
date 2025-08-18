@@ -1,0 +1,11 @@
+/* ===== Base CSS cho dự án =====
+   - Đây là file CSS chính, import vào layout.html
+   - Thêm các style chung cho toàn bộ admin UI ở đây
+*/
+
+/* Ví dụ style mặc định */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}

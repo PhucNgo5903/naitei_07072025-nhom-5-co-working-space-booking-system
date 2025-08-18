@@ -1,0 +1,27 @@
+<!-- ===== Layout Admin =====
+     Sử dụng: <div th:replace="layouts/admin_layout :: layout(~{::section})"></div>
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Admin Layout</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+
+<body>
+    <div th:replace="fragments/header :: header"></div>
+    <div th:replace="fragments/sidebar :: sidebar"></div>
+
+    <main>
+        <section th:fragment="content">
+            <!-- Nội dung trang con sẽ nhúng vào đây -->
+        </section>
+    </main>
+
+    <div th:replace="fragments/footer :: footer"></div>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>
