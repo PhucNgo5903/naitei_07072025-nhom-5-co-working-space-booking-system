@@ -59,4 +59,10 @@ public class AdminUserController extends BaseAdminController {
         }
         return "redirect:/admin/users";
     }
+
+    @PostMapping("/users/{id}/toggle")
+    public String toggleUser(@PathVariable Integer id, Model model) {
+        adminService.toggleUserStatus(id);
+        return "redirect:/admin/users";
+    }
 }

@@ -42,7 +42,8 @@
             <th th:text="#{user.table.name}">Name</th>
             <th th:text="#{user.table.email}">Email</th>
             <th th:text="#{user.table.role}">Role</th>
-            <th th:text="#{user.table.actions}">Actions</th>
+            <th th:text="#{user.table.verify}">Verification</th>
+            <th th:text="#{user.table.status}">Account Status</th>
         </tr>
         </thead>
         <tbody>
@@ -51,29 +52,48 @@
             <td th:text="${user.name}">User Name</td>
             <td th:text="${user.email}">user@example.com</td>
             <td>
-                <span class="badge" 
-                      th:classappend="${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).admin} ? 'bg-danger' : 
-                                     (${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).owner} ? 'bg-primary' : 
-                                     (${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).pending_owner} ? 'bg-warning text-dark' : 'bg-secondary'))"
-                      th:text="${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).admin} ? #{user.role.admin} : 
-                               (${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).renter} ? #{user.role.renter} : 
-                               (${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).owner} ? #{user.role.owner} : #{user.role.pending.owner}))">
-                    Role
-                </span>
+            <span class="badge"
+                  th:classappend="${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).admin} ? 'bg-danger' :
+                                 (${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).owner} ? 'bg-primary' :
+                                 (${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).pending_owner} ? 'bg-warning text-dark' : 'bg-secondary'))"
+                  th:text="${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).admin} ? #{user.role.admin} :
+                           (${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).renter} ? #{user.role.renter} :
+                           (${user.role == T(naitei.group5.workingspacebooking.entity.enums.UserRole).owner} ? #{user.role.owner} : #{user.role.pending.owner}))">
+                Role
+            </span>
             </td>
+
+            <!-- Cột xác minh chủ sở hữu -->
             <td>
-                <!-- Chỉ hiển thị khi role = pending_owner -->
                 <form th:if="${user.role.name() == 'pending_owner'}"
                       th:action="@{'/admin/users/' + ${user.id} + '/approve-owner'}"
-                      method="post"
-                      style="display:inline;">
-                    <button type="submit" class="btn btn-success btn-sm" th:text="#{user.action.approve.owner}">Approve</button>
+                      method="post">
+                    <button type="submit" class="btn btn-success btn-sm"
+                            th:text="#{user.action.approve.owner}">Approve</button>
                 </form>
-                <span th:unless="${user.role.name() == 'pending_owner'}" class="text-muted">—</span>
+                <span th:if="${user.role.name() != 'pending_owner'}" class="text-muted">—</span>
+            </td>
+
+            <!-- Cột trạng thái tài khoản -->
+            <td>
+                <form th:if="${user.role.name() != 'admin'}"
+                      th:action="@{'/admin/users/' + ${user.id} + '/toggle'}"
+                      method="post"
+                      th:onsubmit="${user.deleted} ? 'return confirm(\'Bạn có chắc chắn muốn kích hoạt lại tài khoản này?\');'
+                                  : 'return confirm(\'Bạn có chắc chắn muốn vô hiệu hóa tài khoản này?\');'}">
+                    <button type="submit"
+                            class="btn btn-sm"
+                            th:classappend="${user.deleted} ? 'btn-primary' : 'btn-danger'"
+                            th:text="${user.deleted} ? #{user.action.enable} : #{user.action.disable}">
+                        Toggle
+                    </button>
+                </form>
+                <span th:if="${user.role.name() == 'admin'}" class="text-muted">—</span>
             </td>
         </tr>
+
         <tr th:if="${#lists.isEmpty(users)}">
-            <td colspan="5" class="text-center text-muted" th:text="#{user.table.empty}">No users found</td>
+            <td colspan="6" class="text-center text-muted" th:text="#{user.table.empty}">No users found</td>
         </tr>
         </tbody>
     </table>

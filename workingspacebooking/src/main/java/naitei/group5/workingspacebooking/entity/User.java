@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import naitei.group5.workingspacebooking.entity.enums.UserRole;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -38,6 +40,12 @@ public class User {
     @Enumerated(EnumType.STRING)
     @NotNull(message = "Role is required")
     private UserRole role;
+
+    @Column(nullable = false, columnDefinition = "TINYINT DEFAULT 0")
+    private Boolean deleted = Boolean.FALSE;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     // ====== Associations ======
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

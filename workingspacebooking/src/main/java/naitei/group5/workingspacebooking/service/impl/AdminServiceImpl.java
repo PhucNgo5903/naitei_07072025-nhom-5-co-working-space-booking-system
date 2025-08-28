@@ -1,14 +1,16 @@
 package naitei.group5.workingspacebooking.service.impl;
 
 import lombok.RequiredArgsConstructor;
-import naitei.group5.workingspacebooking.service.EmailService;
-import org.springframework.stereotype.Service;
 import naitei.group5.workingspacebooking.dto.response.UserResponse;
 import naitei.group5.workingspacebooking.entity.User;
 import naitei.group5.workingspacebooking.entity.enums.UserRole;
 import naitei.group5.workingspacebooking.repository.UserRepository;
 import naitei.group5.workingspacebooking.service.AdminService;
+import naitei.group5.workingspacebooking.service.EmailService;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +44,7 @@ public class AdminServiceImpl implements AdminService {
                 .email(user.getEmail())
                 .phone(user.getPhone())
                 .role(user.getRole())
+                .deleted(user.getDeleted())
                 .build();
     }
 
@@ -61,11 +64,9 @@ public class AdminServiceImpl implements AdminService {
             throw new RuntimeException("User is not pending_owner");
         }
 
-        // Cập nhật role
         user.setRole(UserRole.owner);
         User saved = userRepository.save(user);
 
-        // Gửi mail thông báo
         emailService.sendSimpleMessage(
                 user.getEmail(),
                 "Phê duyệt trở thành chủ sở hữu",
@@ -76,4 +77,43 @@ public class AdminServiceImpl implements AdminService {
 
         return mapToResponse(saved);
     }
+
+
+    @Override
+    @Transactional
+    public void toggleUserStatus(Integer userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id " + userId));
+
+        if (user.getRole() == UserRole.admin) {
+            throw new RuntimeException("Cannot change status of admin account");
+        }
+
+        boolean currentlyDeleted = Boolean.TRUE.equals(user.getDeleted());
+        user.setDeleted(!currentlyDeleted);
+        user.setDeletedAt(!currentlyDeleted ? LocalDateTime.now() : null);
+
+        userRepository.save(user);
+
+        // ===== Send email notification =====
+        String subject;
+        String body;
+
+        if (!currentlyDeleted) { // vừa bị disable
+            subject = "Tài khoản của bạn đã bị vô hiệu hóa";
+            body = "Xin chào " + user.getName() + ",\n\n"
+                    + "Tài khoản của bạn đã bị vô hiệu hóa bởi quản trị viên. "
+                    + "Bạn sẽ không thể đăng nhập hoặc sử dụng dịch vụ cho đến khi được kích hoạt lại.\n\n"
+                    + "Trân trọng,\nĐội ngũ hỗ trợ.";
+        } else { // vừa được enable lại
+            subject = "Tài khoản của bạn đã được kích hoạt lại";
+            body = "Xin chào " + user.getName() + ",\n\n"
+                    + "Tài khoản của bạn đã được kích hoạt lại. "
+                    + "Bây giờ bạn có thể đăng nhập và tiếp tục sử dụng dịch vụ.\n\n"
+                    + "Trân trọng,\nĐội ngũ hỗ trợ.";
+        }
+
+        emailService.sendSimpleMessage(user.getEmail(), subject, body);
+    }
+
 }

@@ -11,4 +11,6 @@ public interface AdminService {
 
     UserResponse getUserByEmail(String email);
     UserResponse approveOwner(Integer userId);
+
+    void toggleUserStatus(Integer userId);
 }
